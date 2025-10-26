@@ -1,0 +1,14 @@
+<td
+  class="sticky left-0 z-10 px-4 py-3 text-sm font-bold text-gray-900 bg-gray-100 border-b border-r border-gray-200"
+>
+  Closing Balance
+</td>
+@for (value of closingBalanceValues(); track $index) {
+  <td
+    class="px-4 py-3 text-right text-sm font-bold border-b border-r border-gray-200"
+    [class]="getColorClass(value)"
+  >
+    {{ formatCurrency(value) }}
+  </td>
+}
+

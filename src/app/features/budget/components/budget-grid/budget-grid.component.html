@@ -1,0 +1,115 @@
+<div class="w-full overflow-x-auto bg-white rounded-lg shadow">
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-50">
+        <th
+          class="sticky left-0 z-10 px-4 py-3 text-left text-sm font-semibold text-gray-700 bg-gray-50 border-b border-r border-gray-200 min-w-[200px]"
+        >
+          Category
+        </th>
+        @for (month of months(); track $index) {
+          <th
+            class="px-4 py-3 text-right text-sm font-semibold text-gray-700 border-b border-r border-gray-200 min-w-[120px]"
+          >
+            {{ formatMonthYear(month) }}
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Income Section -->
+      <tr app-budget-section-header
+        class="bg-blue-50"
+        [title]="'Income'"
+        [months]="months()"
+        [bgColorClass]="'bg-blue-50'"
+      ></tr>
+
+      @for (category of incomeCategories(); track category.id) {
+        <tr app-budget-category-row
+          class="hover:bg-gray-50 group"
+          [category]="category"
+          [months]="months()"
+          [cells]="cells()"
+          [focusedCell]="focusedCell()"
+          (cellValueChange)="onCellValueChange(category.id, $event)"
+          (cellFocused)="onCellFocused(category.id, $event)"
+          (cellKeydown)="onCellKeyDown(category.id, $event)"
+        ></tr>
+      }
+
+      <tr app-budget-total-row
+        class="bg-gray-100"
+        [label]="'Income Total'"
+        [totalId]="'income-total'"
+        [months]="months()"
+        [totals]="totals().incomeTotal"
+      ></tr>
+
+      <tr app-budget-actions-row
+        class="bg-gray-50"
+        [actions]="incomeActions"
+        [months]="months()"
+        (actionClicked)="onActionClicked($event)"
+      ></tr>
+
+      <!-- Expenses Section -->
+      <tr app-budget-section-header
+        class="bg-red-50"
+        [title]="'Expenses'"
+        [months]="months()"
+        [bgColorClass]="'bg-red-50'"
+      ></tr>
+
+      @for (category of expenseCategories(); track category.id) {
+        <tr app-budget-category-row
+          class="hover:bg-gray-50 group"
+          [category]="category"
+          [months]="months()"
+          [cells]="cells()"
+          [focusedCell]="focusedCell()"
+          (cellValueChange)="onCellValueChange(category.id, $event)"
+          (cellFocused)="onCellFocused(category.id, $event)"
+          (cellKeydown)="onCellKeyDown(category.id, $event)"
+        ></tr>
+      }
+
+      <tr app-budget-total-row
+        class="bg-gray-100"
+        [label]="'Total Expenses'"
+        [totalId]="'expense-total'"
+        [months]="months()"
+        [totals]="totals().expenseTotal"
+      ></tr>
+
+      <tr app-budget-actions-row
+        class="bg-gray-50"
+        [actions]="expenseActions"
+        [months]="months()"
+        (actionClicked)="onActionClicked($event)"
+      ></tr>
+
+      <!-- Summary Section -->
+      <tr app-budget-profit-loss-row
+        class="bg-yellow-50"
+        [months]="months()"
+        [totals]="totals()"
+      ></tr>
+
+      <tr app-budget-opening-balance-row
+        class="bg-gray-50"
+        [months]="months()"
+        [totals]="totals()"
+        (openingBalanceChange)="onOpeningBalanceChange($event)"
+      ></tr>
+
+      <tr app-budget-closing-balance-row
+        class="bg-gray-100"
+        [months]="months()"
+        [totals]="totals()"
+      ></tr>
+    </tbody>
+  </table>
+
+  <app-context-menu />
+</div>

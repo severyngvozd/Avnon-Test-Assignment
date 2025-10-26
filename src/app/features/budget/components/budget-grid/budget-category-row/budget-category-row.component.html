@@ -1,0 +1,19 @@
+<td
+  [appCategoryContextmenu]="{ categoryId: category().id, month: 0, year: 2024 }"
+  class="sticky left-0 z-10 px-4 py-2 text-sm text-gray-900 bg-white border-b border-r border-gray-200 cursor-context-menu"
+>
+  {{ category().name }}
+</td>
+@for (month of months(); track $index) {
+  <td class="p-0 border-b border-r border-gray-200">
+    <app-budget-cell
+      [value]="getCellValue(month)"
+      [position]="{ categoryId: category().id, month: month.month, year: month.year }"
+      [isFocused]="isCellFocused(month)"
+      (valueChange)="cellValueChange.emit({ month: month, value: $event })"
+      (focused)="cellFocused.emit(month)"
+      (keydown)="cellKeydown.emit({ event: $event, month: month })"
+    />
+  </td>
+}
+

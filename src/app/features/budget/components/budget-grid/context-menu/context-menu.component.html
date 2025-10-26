@@ -1,0 +1,25 @@
+@if (contextMenu().isVisible) {
+  <div
+    [style.left.px]="contextMenu().position.x"
+    [style.top.px]="contextMenu().position.y"
+    (click)="onMenuClick($event)"
+    class="fixed z-50 min-w-[160px] bg-white rounded-md shadow-lg border border-gray-200 py-1"
+  >
+    @if (contextMenu().isCategoryMenu) {
+      <button
+        (click)="onDeleteCategory()"
+        class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+      >
+        Delete row
+      </button>
+    } @else {
+      <button
+        (click)="onApplyToAll()"
+        class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+      >
+        Apply to all
+      </button>
+    }
+  </div>
+}
+

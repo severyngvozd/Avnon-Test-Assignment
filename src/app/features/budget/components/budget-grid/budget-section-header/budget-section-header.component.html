@@ -1,0 +1,12 @@
+<td
+  [class]="
+    'sticky left-0 z-10 px-4 py-2 text-sm font-bold text-gray-900 border-b border-r border-gray-200 ' +
+    bgColorClass()
+  "
+>
+  {{ title() }}
+</td>
+@for (month of months(); track $index) {
+  <td class="border-b border-r border-gray-200"></td>
+}
+

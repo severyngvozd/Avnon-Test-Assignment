@@ -1,0 +1,30 @@
+<div class="flex items-center gap-4 mb-6">
+  <div class="flex items-center gap-2">
+    <label for="start-period" class="text-sm font-medium text-gray-700">Start Period</label>
+    <select
+      id="start-period"
+      [value]="selectedStartIndex()"
+      (change)="onStartPeriodChange($event)"
+      class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+    >
+      @for (option of monthOptions; track $index) {
+        <option [value]="$index">{{ formatMonthYear(option) }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <label for="end-period" class="text-sm font-medium text-gray-700">End Period</label>
+    <select
+      id="end-period"
+      [value]="selectedEndIndex()"
+      (change)="onEndPeriodChange($event)"
+      class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+    >
+      @for (option of monthOptions; track $index) {
+        <option [value]="$index">{{ formatMonthYear(option) }}</option>
+      }
+    </select>
+  </div>
+</div>
+
