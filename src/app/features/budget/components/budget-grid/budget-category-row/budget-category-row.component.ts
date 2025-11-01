@@ -57,5 +57,9 @@ export class BudgetCategoryRowComponent {
     const key = getMonthKey(this.category().id, month.month, month.year);
     return this.focusedCellsMap().get(key) || false;
   }
+
+  protected trackByMonth(index: number, month: MonthYear): string {
+    return `${month.year}-${month.month}`;
+  }
 }
 

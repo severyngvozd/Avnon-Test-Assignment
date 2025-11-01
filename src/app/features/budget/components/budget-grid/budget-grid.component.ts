@@ -58,6 +58,10 @@ export class BudgetGridComponent {
     return formatMonthYear(month);
   }
 
+  protected trackByMonth(index: number, month: MonthYear): string {
+    return `${month.year}-${month.month}`;
+  }
+
   protected onCellValueChange(
     categoryId: string,
     data: { month: MonthYear; value: number }

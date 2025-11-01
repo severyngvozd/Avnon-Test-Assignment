@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ContextMenuService } from '../../../../../core/services/context-menu-service/context-menu.service';
 import { BudgetStore } from '../../../../../state/budget.store';
 
@@ -8,6 +8,9 @@ import { BudgetStore } from '../../../../../state/budget.store';
   templateUrl: './context-menu.component.html',
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:click)': 'onDocumentClick()',
+  },
 })
 export class ContextMenuComponent {
   private readonly contextMenuService = inject(ContextMenuService);
@@ -15,7 +18,6 @@ export class ContextMenuComponent {
 
   protected readonly contextMenu = this.contextMenuService.contextMenu;
 
-  @HostListener('document:click')
   protected onDocumentClick(): void {
     this.contextMenuService.hide();
   }

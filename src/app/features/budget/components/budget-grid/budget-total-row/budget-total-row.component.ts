@@ -29,5 +29,9 @@ export class BudgetTotalRowComponent {
     const key = getMonthKey(month);
     return this.totalValuesMap().get(key) || 0;
   }
+
+  protected trackByMonth(index: number, month: MonthYear): string {
+    return `${month.year}-${month.month}`;
+  }
 }
 

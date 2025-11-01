@@ -7,7 +7,7 @@
         >
           Category
         </th>
-        @for (month of months(); track $index) {
+        @for (month of months(); track trackByMonth($index, month)) {
           <th
             class="px-4 py-3 text-right text-sm font-semibold text-gray-700 border-b border-r border-gray-200 min-w-[120px]"
           >

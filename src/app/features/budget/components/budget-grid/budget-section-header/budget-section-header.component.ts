@@ -12,5 +12,9 @@ export class BudgetSectionHeaderComponent {
   public readonly title = input.required<string>();
   public readonly months = input.required<MonthYear[]>();
   public readonly bgColorClass = input<string>('bg-gray-50');
+
+  protected trackByMonth(index: number, month: MonthYear): string {
+    return `${month.year}-${month.month}`;
+  }
 }
 

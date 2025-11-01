@@ -6,7 +6,7 @@
 >
   {{ title() }}
 </td>
-@for (month of months(); track $index) {
+@for (month of months(); track trackByMonth($index, month)) {
   <td class="border-b border-r border-gray-200"></td>
 }
 
