@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { BudgetStore } from '../../../../state/budget.store';
 import { ContextMenuComponent } from './context-menu/context-menu.component';
-import { formatMonthYear, getMonthKey } from '../../../../core/utils/month-range.util';
-import { CellPosition, MonthYear } from '../../../../core/models';
+import { formatMonthYear } from '../../../../core/utils/month-range.util';
+import { MonthYear } from '../../../../core/models';
 import { KeyboardService } from '../../../../core/services/keyboard-service/keyboard.service';
 import { KeyboardAction } from '../../../../core/enums/keyboard.enums';
+import { SyntheticId } from '../../../../core/enums/synthetic-id.enum';
 import { BudgetSectionHeaderComponent } from './budget-section-header/budget-section-header.component';
 import { BudgetCategoryRowComponent } from './budget-category-row/budget-category-row.component';
 import { BudgetTotalRowComponent } from './budget-total-row/budget-total-row.component';
@@ -12,11 +13,16 @@ import { BudgetActionsRowComponent } from './budget-actions-row/budget-actions-r
 import { BudgetClosingBalanceRowComponent } from './budget-closing-balance-row/budget-closing-balance-row.component';
 import { BudgetOpeningBalanceRowComponent } from './budget-opening-balance-row/budget-opening-balance-row.component';
 import { BudgetProfitLossRowComponent } from './budget-profit-loss-row/budget-profit-loss-row.component';
+import {
+  BudgetCategoryFormComponent,
+  CategoryFormData,
+} from './budget-category-form/budget-category-form.component';
 
 @Component({
   selector: 'app-budget-grid',
   imports: [
     BudgetActionsRowComponent,
+    BudgetCategoryFormComponent,
     BudgetCategoryRowComponent,
     BudgetClosingBalanceRowComponent,
     BudgetOpeningBalanceRowComponent,
@@ -33,12 +39,18 @@ export class BudgetGridComponent {
   private readonly budgetStore = inject(BudgetStore);
   private readonly keyboardService = inject(KeyboardService);
 
+  protected readonly SyntheticId = SyntheticId;
   protected readonly months = this.budgetStore.months;
   protected readonly incomeCategories = this.budgetStore.incomeCategories;
   protected readonly expenseCategories = this.budgetStore.expenseCategories;
   protected readonly cells = this.budgetStore.cells;
   protected readonly focusedCell = this.budgetStore.focusedCell;
   protected readonly totals = this.budgetStore.totals;
+
+  // Form state for adding categories
+  protected readonly showIncomeForm = signal(false);
+  protected readonly showExpenseForm = signal(false);
+  protected readonly incomeFormShowParent = signal(false);
 
   protected readonly allCategories = computed(() => [
     ...this.incomeCategories(),
@@ -77,12 +89,7 @@ export class BudgetGridComponent {
     categoryId: string,
     data: { event: KeyboardEvent; month: MonthYear }
   ): void {
-    const position: CellPosition = {
-      categoryId,
-      month: data.month.month,
-      year: data.month.year,
-    };
-    const action = this.keyboardService.handleKeyDown(data.event, position);
+    const action = this.keyboardService.handleKeyDown(data.event);
 
     switch (action) {
       case KeyboardAction.MOVE_UP:
@@ -107,21 +114,35 @@ export class BudgetGridComponent {
   protected onActionClicked(actionId: string): void {
     switch (actionId) {
       case 'add-general-income':
-        this.budgetStore.addCategory('General Income', 'income', 'income');
+        this.budgetStore.addCategory('General Income', 'income', 'income', false);
         break;
       case 'add-parent-income':
-        const incomeName = prompt('Enter new income category name:');
-        if (incomeName) {
-          this.budgetStore.addCategory(incomeName, 'income', 'income');
-        }
+        this.showIncomeForm.set(true);
+        this.incomeFormShowParent.set(true);
+        this.showExpenseForm.set(false);
         break;
       case 'add-expense':
-        const expenseName = prompt('Enter new expense category name:');
-        if (expenseName) {
-          this.budgetStore.addCategory(expenseName, 'expense', 'expenses');
-        }
+        this.showExpenseForm.set(true);
+        this.showIncomeForm.set(false);
         break;
     }
+  }
+
+  protected onIncomeCategorySubmit(data: CategoryFormData): void {
+    this.budgetStore.addCategory(data.name, 'income', 'income', data.isParent);
+    this.showIncomeForm.set(false);
+    this.incomeFormShowParent.set(false);
+  }
+
+  protected onExpenseCategorySubmit(data: CategoryFormData): void {
+    this.budgetStore.addCategory(data.name, 'expense', 'expenses', data.isParent);
+    this.showExpenseForm.set(false);
+  }
+
+  protected onCategoryFormCancel(): void {
+    this.showIncomeForm.set(false);
+    this.showExpenseForm.set(false);
+    this.incomeFormShowParent.set(false);
   }
 
   protected onOpeningBalanceChange(value: string): void {

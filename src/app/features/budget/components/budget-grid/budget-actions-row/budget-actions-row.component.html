@@ -1,13 +1,10 @@
-<tr>
-  <td colspan="100%" class="p-2 bg-white">
-    <div class="flex gap-2">
-      @for (action of actions(); track action.id) {
-        <app-button [variant]="'secondary'" [size]="'sm'" (clicked)="actionClicked.emit(action.id)">
-          <app-icon [name]="'plus'" [size]="16" />
-          <span class="ml-1">{{ action.label }}</span>
-        </app-button>
-      }
-    </div>
-  </td>
-</tr>
-
+<td colspan="100%" class="p-2 bg-white">
+  <div class="flex gap-2">
+    @for (action of actions(); track action.id) {
+      <app-button [variant]="'secondary'" [size]="'sm'" (clicked)="actionClicked.emit(action.id)">
+        <app-icon [name]="'plus'" [size]="16" />
+        <span class="ml-1">{{ action.label }}</span>
+      </app-button>
+    }
+  </div>
+</td>

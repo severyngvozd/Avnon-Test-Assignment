@@ -33,13 +33,28 @@ export class MonthRangePickerComponent {
   protected onStartPeriodChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const index = parseInt(target.value, 10);
-    this.startPeriodChange.emit(this.monthOptions[index]);
+    const newStartPeriod = this.monthOptions[index];
+
+    const currentEndIndex = this.selectedEndIndex();
+    if (index > currentEndIndex) {
+      this.endPeriodChange.emit(newStartPeriod);
+    }
+
+    this.startPeriodChange.emit(newStartPeriod);
   }
 
   protected onEndPeriodChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const index = parseInt(target.value, 10);
-    this.endPeriodChange.emit(this.monthOptions[index]);
+    const newEndPeriod = this.monthOptions[index];
+
+    const currentStartIndex = this.selectedStartIndex();
+    if (index < currentStartIndex) {
+      this.endPeriodChange.emit(this.monthOptions[currentStartIndex]);
+      return;
+    }
+
+    this.endPeriodChange.emit(newEndPeriod);
   }
 
   protected formatMonthYear(monthYear: MonthYear): string {

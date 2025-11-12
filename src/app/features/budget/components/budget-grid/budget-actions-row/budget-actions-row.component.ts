@@ -7,7 +7,6 @@ import { MonthYear } from '../../../../../core/models';
   selector: 'tr[app-budget-actions-row]',
   imports: [ButtonComponent, IconComponent],
   templateUrl: './budget-actions-row.component.html',
-  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BudgetActionsRowComponent {

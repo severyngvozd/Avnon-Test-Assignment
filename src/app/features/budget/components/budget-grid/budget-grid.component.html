@@ -41,17 +41,26 @@
       <tr app-budget-total-row
         class="bg-gray-100"
         [label]="'Income Total'"
-        [totalId]="'income-total'"
+        [totalId]="SyntheticId.INCOME_TOTAL"
         [months]="months()"
         [totals]="totals().incomeTotal"
       ></tr>
 
-      <tr app-budget-actions-row
-        class="bg-gray-50"
-        [actions]="incomeActions"
-        [months]="months()"
-        (actionClicked)="onActionClicked($event)"
-      ></tr>
+      @if (showIncomeForm()) {
+        <tr app-budget-category-form
+          [categoryType]="'income'"
+          [showParentOption]="incomeFormShowParent()"
+          (formSubmit)="onIncomeCategorySubmit($event)"
+          (formCancel)="onCategoryFormCancel()"
+        ></tr>
+      } @else {
+        <tr app-budget-actions-row
+          class="bg-gray-50"
+          [actions]="incomeActions"
+          [months]="months()"
+          (actionClicked)="onActionClicked($event)"
+        ></tr>
+      }
 
       <!-- Expenses Section -->
       <tr app-budget-section-header
@@ -77,17 +86,26 @@
       <tr app-budget-total-row
         class="bg-gray-100"
         [label]="'Total Expenses'"
-        [totalId]="'expense-total'"
+        [totalId]="SyntheticId.EXPENSE_TOTAL"
         [months]="months()"
         [totals]="totals().expenseTotal"
       ></tr>
 
-      <tr app-budget-actions-row
-        class="bg-gray-50"
-        [actions]="expenseActions"
-        [months]="months()"
-        (actionClicked)="onActionClicked($event)"
-      ></tr>
+      @if (showExpenseForm()) {
+        <tr app-budget-category-form
+          [categoryType]="'expense'"
+          [showParentOption]="false"
+          (formSubmit)="onExpenseCategorySubmit($event)"
+          (formCancel)="onCategoryFormCancel()"
+        ></tr>
+      } @else {
+        <tr app-budget-actions-row
+          class="bg-gray-50"
+          [actions]="expenseActions"
+          [months]="months()"
+          (actionClicked)="onActionClicked($event)"
+        ></tr>
+      }
 
       <!-- Summary Section -->
       <tr app-budget-profit-loss-row

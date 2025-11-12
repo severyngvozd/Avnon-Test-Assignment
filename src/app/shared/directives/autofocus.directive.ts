@@ -1,5 +1,12 @@
-import { AfterViewInit, Directive, ElementRef, inject, input } from '@angular/core';
-import { delay, of } from 'rxjs';
+import {
+  afterNextRender,
+  Directive,
+  ElementRef,
+  inject,
+  Injector,
+  input,
+  OnInit,
+} from '@angular/core';
 
 /**
  * Autofocus Directive
@@ -16,18 +23,20 @@ import { delay, of } from 'rxjs';
   selector: '[appAutofocus]',
   standalone: true,
 })
-export class AutofocusDirective implements AfterViewInit {
-  private readonly elementRef = inject(ElementRef);
+export class AutofocusDirective implements OnInit {
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+  private readonly injector = inject(Injector);
 
   public readonly appAutofocus = input<boolean>(true);
 
-  public ngAfterViewInit(): void {
+  public ngOnInit(): void {
     if (this.appAutofocus()) {
-      of(null)
-        .pipe(delay(0))
-        .subscribe(() => {
+      afterNextRender(
+        () => {
           this.elementRef.nativeElement.focus();
-        });
+        },
+        { injector: this.injector }
+      );
     }
   }
 }

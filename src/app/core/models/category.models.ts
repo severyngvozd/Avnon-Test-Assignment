@@ -1,6 +1,16 @@
 export type CategoryType = 'income' | 'expense';
 
+export const CATEGORY_TYPE = {
+  INCOME: 'income' as CategoryType,
+  EXPENSE: 'expense' as CategoryType,
+} as const;
+
 export type ParentCategoryId = 'income' | 'expenses';
+
+export const PARENT_CATEGORY_ID = {
+  INCOME: 'income' as ParentCategoryId,
+  EXPENSES: 'expenses' as ParentCategoryId,
+} as const;
 
 export interface BudgetCategory {
   id: string;

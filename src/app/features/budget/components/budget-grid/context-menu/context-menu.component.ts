@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ContextMenuService } from '../../../../../core/services/context-menu-service/context-menu.service';
 import { BudgetStore } from '../../../../../state/budget.store';
+import { isSyntheticId } from '../../../../../core/enums/synthetic-id.enum';
 
 @Component({
   selector: 'app-context-menu',
@@ -24,7 +25,7 @@ export class ContextMenuComponent {
 
   protected onApplyToAll(): void {
     const cellPosition = this.contextMenu().cellPosition;
-    if (cellPosition) {
+    if (cellPosition && !isSyntheticId(cellPosition.categoryId)) {
       this.budgetStore.applyToAllMonths(
         cellPosition.categoryId,
         { month: cellPosition.month, year: cellPosition.year }
@@ -35,7 +36,7 @@ export class ContextMenuComponent {
 
   protected onDeleteCategory(): void {
     const cellPosition = this.contextMenu().cellPosition;
-    if (cellPosition) {
+    if (cellPosition && !isSyntheticId(cellPosition.categoryId)) {
       const confirmDelete = confirm('Are you sure you want to delete this category?');
       if (confirmDelete) {
         this.budgetStore.deleteCategory(cellPosition.categoryId);

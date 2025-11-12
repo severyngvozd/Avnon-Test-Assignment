@@ -1,0 +1,58 @@
+<td colspan="100%" class="p-3 bg-blue-50 border-b border-gray-200">
+  <form class="flex items-center gap-3" (submit)="onSubmit($event)">
+    <div class="flex flex-col gap-1">
+      <label class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-700">Category Name:</span>
+        <input
+          type="text"
+          [value]="categoryName()"
+          (input)="onNameChange($event)"
+          name="categoryName"
+          placeholder="Enter category name"
+          [class.border-red-500]="showError()"
+          class="px-3 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          maxlength="50"
+          required
+          autofocus
+        />
+      </label>
+      @if (showError()) {
+        <span class="text-xs text-red-600 ml-28">
+          {{ errorMessage() }}
+        </span>
+      }
+    </div>
+
+    @if (showParentOption()) {
+      <label class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          [checked]="isParent()"
+          (change)="onParentChange($event)"
+          name="isParent"
+          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <span class="text-sm text-gray-700">Parent Category</span>
+      </label>
+    }
+
+    <div class="flex gap-2 ml-auto">
+      <app-button
+        type="submit"
+        [variant]="'primary'"
+        [size]="'sm'"
+        [disabled]="!isValid()"
+      >
+        Add Category
+      </app-button>
+      <app-button
+        type="button"
+        [variant]="'secondary'"
+        [size]="'sm'"
+        (clicked)="onCancel()"
+      >
+        Cancel
+      </app-button>
+    </div>
+  </form>
+</td>

@@ -1,19 +1,17 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   output,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { delay, Subject } from 'rxjs';
 
 import { CellPosition } from '../../../../../core/models';
 import { formatCurrency, parseNumericValue } from '../../../../../core/utils/math.util';
@@ -27,10 +25,9 @@ import { ContextmenuDirective } from '../../../../../shared/directives/contextme
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BudgetCellComponent implements AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
+export class BudgetCellComponent {
+  private readonly injector = inject(Injector);
   private readonly inputRef = viewChild<ElementRef<HTMLInputElement>>('input');
-  private readonly focusSubject = new Subject<void>();
 
   public readonly value = input.required<number>();
   public readonly position = input.required<CellPosition>();
@@ -55,17 +52,14 @@ export class BudgetCellComponent implements AfterViewInit {
   constructor() {
     effect(() => {
       if (this.isFocused() && !this.isReadonly()) {
-        this.focusSubject.next();
+        afterNextRender(
+          () => {
+            this.inputRef()?.nativeElement.focus();
+          },
+          { injector: this.injector }
+        );
       }
     });
-  }
-
-  public ngAfterViewInit(): void {
-    this.focusSubject
-      .pipe(delay(0), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.inputRef()?.nativeElement.focus();
-      });
   }
 
   public onFocus(): void {
@@ -85,10 +79,13 @@ export class BudgetCellComponent implements AfterViewInit {
   }
 
   public onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.saveValue();
-      this.isEditing.set(false);
+    if (this.isEditing()) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        this.saveValue();
+        this.isEditing.set(false);
+      }
+      return;
     }
     this.keydown.emit(event);
   }

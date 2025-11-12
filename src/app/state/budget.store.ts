@@ -5,6 +5,7 @@ import {
   BudgetState,
   BudgetTotals,
   CategoryType,
+  CATEGORY_TYPE,
   CellPosition,
   DEFAULT_EXPENSE_CATEGORIES,
   DEFAULT_INCOME_CATEGORIES,
@@ -42,13 +43,13 @@ export class BudgetStore {
 
   public readonly incomeCategories = computed(() =>
     this.state()
-      .categories.filter((cat) => cat.type === 'income')
+      .categories.filter((cat) => cat.type === CATEGORY_TYPE.INCOME)
       .sort((a, b) => a.order - b.order)
   );
 
   public readonly expenseCategories = computed(() =>
     this.state()
-      .categories.filter((cat) => cat.type === 'expense')
+      .categories.filter((cat) => cat.type === CATEGORY_TYPE.EXPENSE)
       .sort((a, b) => a.order - b.order)
   );
 
@@ -63,8 +64,8 @@ export class BudgetStore {
 
     months.forEach((month) => {
       const key = getMonthKey(month);
-      const monthIncome = this.calculateMonthTotal(month, 'income');
-      const monthExpense = this.calculateMonthTotal(month, 'expense');
+      const monthIncome = this.calculateMonthTotal(month, CATEGORY_TYPE.INCOME);
+      const monthExpense = this.calculateMonthTotal(month, CATEGORY_TYPE.EXPENSE);
       const monthProfit = roundToTwoDecimals(monthIncome - monthExpense);
 
       incomeTotal.set(key, monthIncome);
@@ -114,12 +115,33 @@ export class BudgetStore {
     const value = this.getCellValue(categoryId, sourceMonth);
     const months = this.months();
 
-    months.forEach((month) => {
-      this.setCellValue(categoryId, month, value);
+    this.state.update((state) => {
+      const newCells = new Map(state.cells);
+
+      months.forEach((month) => {
+        const key = this.getCellKey(categoryId, month);
+        const cell: BudgetCell = {
+          categoryId,
+          month: month.month,
+          year: month.year,
+          value: roundToTwoDecimals(value),
+        };
+        newCells.set(key, cell);
+      });
+
+      return {
+        ...state,
+        cells: newCells,
+      };
     });
   }
 
-  public addCategory(name: string, type: CategoryType, parentId: ParentCategoryId): void {
+  public addCategory(
+    name: string,
+    type: CategoryType,
+    parentId: ParentCategoryId,
+    isParent: boolean = false
+  ): void {
     const categories = this.state().categories.filter(
       (cat) => cat.type === type && cat.parentId === parentId
     );
@@ -131,7 +153,7 @@ export class BudgetStore {
       type,
       parentId,
       order: maxOrder + 1,
-      isParent: false,
+      isParent,
     };
 
     this.state.update((state) => ({
@@ -148,10 +170,6 @@ export class BudgetStore {
       return;
     }
 
-    const sameLevelCategories = categories.filter(
-      (cat) => cat.type === afterCategory.type && cat.parentId === afterCategory.parentId
-    );
-
     const newOrder = afterCategory.order + 1;
 
     const updatedCategories = categories.map((cat) => {
@@ -167,7 +185,7 @@ export class BudgetStore {
 
     const newCategory: BudgetCategory = {
       id: `${afterCategory.type}-${Date.now()}`,
-      name: `New ${afterCategory.type === 'income' ? 'Income' : 'Expense'} Category`,
+      name: `New ${afterCategory.type === CATEGORY_TYPE.INCOME ? 'Income' : 'Expense'} Category`,
       type: afterCategory.type,
       parentId: afterCategory.parentId,
       order: newOrder,
@@ -181,17 +199,39 @@ export class BudgetStore {
   }
 
   public setStartPeriod(period: MonthYear): void {
-    this.state.update((state) => ({
-      ...state,
-      startPeriod: period,
-    }));
+    this.state.update((state) => {
+      const startDate = new Date(period.year, period.month - 1);
+      const endDate = new Date(state.endPeriod.year, state.endPeriod.month - 1);
+
+      if (startDate > endDate) {
+        return {
+          ...state,
+          startPeriod: period,
+          endPeriod: period,
+        };
+      }
+
+      return {
+        ...state,
+        startPeriod: period,
+      };
+    });
   }
 
   public setEndPeriod(period: MonthYear): void {
-    this.state.update((state) => ({
-      ...state,
-      endPeriod: period,
-    }));
+    this.state.update((state) => {
+      const startDate = new Date(state.startPeriod.year, state.startPeriod.month - 1);
+      const endDate = new Date(period.year, period.month - 1);
+
+      if (endDate < startDate) {
+        return state;
+      }
+
+      return {
+        ...state,
+        endPeriod: period,
+      };
+    });
   }
 
   public setFocusedCell(position: CellPosition | null): void {
@@ -233,11 +273,10 @@ export class BudgetStore {
   }
 
   private calculateMonthTotal(month: MonthYear, type: CategoryType): number {
-    const categories = this.state()
-      .categories.filter((cat) => cat.type === type)
-      .map((cat) => cat.id);
-
-    const values = categories.map((categoryId) => this.getCellValue(categoryId, month));
+    const values = this.state()
+      .categories
+      .filter((cat) => cat.type === type)
+      .map((cat) => this.getCellValue(cat.id, month));
 
     return sumArray(values);
   }
